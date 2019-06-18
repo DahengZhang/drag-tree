@@ -11,23 +11,20 @@ const DRAG_DOM_CLASS = 'drag-node'
 const NODE_HEIGHT = 28
 
 export default {
-    data () {
-        return {
-            $dragTargetDom: null,
-            $placeholderNode: null
-        }
-    },
     mounted() {
         this.$el.addEventListener('mousedown', this.mouseDown)
     },
     methods: {
         mouseDown (e) {
+            // 判断被点击的元素是否为可拖拽元素
             if (!e.target.classList.contains(DRAG_DOM_CLASS)) {
                 return
             }
             this.$dragTargetDom = e.target
+            // 插入占位节点
             this.insertPlacehodlerDom()
             this.$dragTargetDom.classList.add('node__drag-target')
+            // 获取点击时触点相对于被点击元素的坐标
             this.touchPointX = e.clientX - this.$dragTargetDom.offsetLeft
             this.touchPointY = e.clientY - this.$dragTargetDom.offsetTop
             document.addEventListener('mousemove', this.mouseMove)
@@ -38,6 +35,7 @@ export default {
             const left = e.clientX - this.touchPointX
 
             const index = Math.round((top - this.$el.offsetTop) / NODE_HEIGHT + 1)
+            // 如果被插入的点没有改变时，移动占位元素
             this.oldIndex !== index && this.$el.insertBefore(this.$placeholderNode, this.$el.childNodes[index])
             this.oldIndex = index
 
@@ -47,8 +45,10 @@ export default {
         mouseUp () {
             document.removeEventListener('mousemove', this.mouseMove)
             document.removeEventListener('mouseup', this.mouseUp)
+            // 还原拖拽元素
             this.$dragTargetDom.removeAttribute('style')
             this.$dragTargetDom.classList.remove('node__drag-target')
+            // 在新的位置插入元素
             this.$el.insertBefore(this.$dragTargetDom, this.$placeholderNode)
             this.$placeholderNode.remove()
         },
